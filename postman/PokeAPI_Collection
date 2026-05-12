@@ -1,0 +1,82 @@
+{
+  "info": {
+    "_postman_id": "bf67f9bc-887d-4ae6-bb48-88216fcda9a7",
+    "name": "Proyecto Final - PokeAPI",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "44819374"
+  },
+  "item": [
+    {
+      "name": "01-Berries",
+      "item": [
+        {
+          "name": "GetAll-Berries",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 1. Validar el Código de Estado\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Validar Tiempo de Respuesta\r",
+                  "pm.test(\"Response time is less than 500ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+                  "});\r",
+                  "\r",
+                  "// 3. Validar Estructura del JSON (Schema básico)\r",
+                  "pm.test(\"Validar estructura de la respuesta\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.have.property('count');\r",
+                  "    pm.expect(jsonData).to.have.property('results');\r",
+                  "    pm.expect(jsonData.results).to.be.an('array');\r",
+                  "});\r",
+                  "\r",
+                  "// 4. Validar Datos Específicos\r",
+                  "pm.test(\"La lista de resultados no está vacía\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.results.length).to.be.at.least(1);\r",
+                  "});\r",
+                  "\r",
+                  "// 5. ENCADENAMIENTO (Dynamic Variables)\r",
+                  "// Vamos a tomar el nombre de la primera berry de la lista y guardarlo\r",
+                  "// para usarlo en la siguiente petición (GET Berry by Name)\r",
+                  "const firstBerryName = pm.response.json().results[0].name;\r",
+                  "pm.collectionVariables.set(\"selected_berry_name\", firstBerryName);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}berry",
+              "host": [
+                "{{base_url}}berry"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02-Pokemon",
+      "item": []
+    },
+    {
+      "name": "03-Evolution",
+      "item": []
+    },
+    {
+      "name": "Game/Pokedex",
+      "item": []
+    }
+  ]
+}
