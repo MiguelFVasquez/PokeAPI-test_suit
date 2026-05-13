@@ -43,8 +43,325 @@
                   "// 5. ENCADENAMIENTO (Dynamic Variables)\r",
                   "// Vamos a tomar el nombre de la primera berry de la lista y guardarlo\r",
                   "// para usarlo en la siguiente petición (GET Berry by Name)\r",
-                  "const firstBerryName = pm.response.json().results[0].name;\r",
-                  "pm.collectionVariables.set(\"selected_berry_name\", firstBerryName);"
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "if (jsonData.results && jsonData.results.length > 0) {\r",
+                  "    const primerNombre = jsonData.results[0].name;\r",
+                  "    // USAMOS pm.environment.set en lugar de collectionVariables\r",
+                  "    pm.environment.set(\"berry_name\", primerNombre);\r",
+                  "    console.log(\"Nombre guardado en ambiente: \" + primerNombre);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}berry",
+              "host": [
+                "{{base_url}}berry"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetByName",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}berry/{{berry_name}}",
+              "host": [
+                "{{base_url}}berry"
+              ],
+              "path": [
+                "{{berry_name}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetByID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar estructura de la Berry\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.id).to.eql(1);\r",
+                  "    pm.expect(jsonData.name).to.be.a('string');\r",
+                  "    pm.expect(jsonData.item).to.have.property('name');\r",
+                  "    pm.expect(jsonData.flavors).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}berry/1",
+              "host": [
+                "{{base_url}}berry"
+              ],
+              "path": [
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetAll_pagination",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar límites de paginación\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.results.length).to.eql(5);\r",
+                  "    // Validamos que el 'previous' no esté nulo porque el offset es 10\r",
+                  "    pm.expect(jsonData.previous).to.contain(\"offset=5\"); \r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/berry?limit=5&offset=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "berry"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                },
+                {
+                  "key": "offset",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Error_InvalidID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found\", () => {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta debe ser Not Found\", () => {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"Not Found\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/berry/1899",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "berry",
+                "1899"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Error_InvalidName",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found\", () => {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta debe ser Not Found\", () => {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"Not Found\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/berry/choper",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "berry",
+                "choper"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetFirmness_Berry",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar lista de firmezas\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.results).to.be.an('array');\r",
+                  "    // Guardamos la primera firmeza para usarla luego si quisiéramos\r",
+                  "    pm.environment.set(\"temp_firmness\", jsonData.results[0].name);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/berry-firmness",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "berry-firmness"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetFirmness_IDBerry",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar datos de firmeza\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.have.property('name');\r",
+                  "    pm.expect(jsonData.berries).to.be.an('array');\r",
+                  "    // Validar que cada berry en la lista tenga una URL\r",
+                  "    pm.expect(jsonData.berries[0]).to.have.property('url');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/berry-firmness/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "berry-firmness",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetFlavor_Berry",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/berry-flavor",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "berry-flavor"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetFlavor_IDBerry",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar sabor y potencia\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.name).to.be.a('string');\r",
+                  "    \r",
+                  "    // Validar que exista al menos una berry y tenga potencia (potency)\r",
+                  "    const primeraBerry = jsonData.berries[0];\r",
+                  "    pm.expect(primeraBerry).to.have.property('potency');\r",
+                  "    pm.expect(primeraBerry.potency).to.be.a('number');\r",
+                  "});"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -56,9 +373,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}berry",
+              "raw": "{{base_url}}/berry-flavor/4",
               "host": [
-                "{{base_url}}berry"
+                "{{base_url}}"
+              ],
+              "path": [
+                "berry-flavor",
+                "4"
               ]
             }
           },
@@ -75,7 +396,7 @@
       "item": []
     },
     {
-      "name": "Game/Pokedex",
+      "name": "04- Game/Pokedex",
       "item": []
     }
   ]
