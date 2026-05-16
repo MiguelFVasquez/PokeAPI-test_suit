@@ -1142,7 +1142,317 @@
     },
     {
       "name": "04- Game/Pokedex",
-      "item": []
+      "item": [
+        {
+          "name": "GetAllPokedex",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar catálogo de Pokédex y sus nombres\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.results).to.be.an('array');\r",
+                  "    \r",
+                  "    // Validamos que los elementos contengan la propiedad name como string\r",
+                  "    pm.expect(jsonData.results[0].name).to.be.a('string');\r",
+                  "    \r",
+                  "    // Validamos que exista una de las clásicas en la lista (ej: kanto)\r",
+                  "    const nombresPokedex = jsonData.results.map(p => p.name);\r",
+                  "    pm.expect(nombresPokedex).to.include(\"kanto\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokedex",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokedex"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetPokedex_ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar entradas de la Pokédex de Kanto\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.name).to.eql(\"kanto\");\r",
+                  "    pm.expect(jsonData.pokemon_entries).to.be.an('array');\r",
+                  "    \r",
+                  "    // Validamos la estructura de la primera entrada (Bulbasaur generalmente)\r",
+                  "    const primeraEntrada = jsonData.pokemon_entries[0];\r",
+                  "    pm.expect(primeraEntrada).to.have.property('entry_number');\r",
+                  "    pm.expect(primeraEntrada.pokemon_species).to.have.property('name');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokedex/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokedex",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetPokedex_InvalidID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found\", () => {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta debe fallar limpiamente con Not Found\", () => {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"Not Found\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokedex/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokedex",
+                "999999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetVersion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar lista de versiones de videojuegos\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.results).to.be.an('array');\r",
+                  "    pm.expect(jsonData.results.length).to.be.greaterThan(0);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/version",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "version"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetVersion_ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar detalles de la versión y su grupo\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.name).to.eql(\"red\");\r",
+                  "    \r",
+                  "    // Validación de la propiedad vinculada solicitada\r",
+                  "    pm.expect(jsonData).to.have.property('version_group');\r",
+                  "    pm.expect(jsonData.version_group).to.have.property('name');\r",
+                  "    pm.expect(jsonData.version_group).to.have.property('url');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/version/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "version",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GerVersion-Group",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar grupo de versiones y generación\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.versions).to.be.an('array');\r",
+                  "    \r",
+                  "    // Validar que apunte a la generación esperada (generation-i)\r",
+                  "    pm.expect(jsonData).to.have.property('generation');\r",
+                  "    pm.expect(jsonData.generation.name).to.eql(\"generation-i\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/version-group/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "version-group",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetGeneration",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar lista de generaciones\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.results).to.be.an('array');\r",
+                  "    pm.expect(jsonData.count).to.be.a('number');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/generation",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "generation"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetGeneration_ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar región principal y especies de Gen 1\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    \r",
+                  "    // Validar la región principal (Kanto)\r",
+                  "    pm.expect(jsonData.main_region.name).to.eql(\"kanto\");\r",
+                  "    \r",
+                  "    // Validar el arreglo de especies asociadas a esta generación\r",
+                  "    pm.expect(jsonData.pokemon_species).to.be.an('array');\r",
+                  "    pm.expect(jsonData.pokemon_species.length).to.be.greaterThan(0);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/generation/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "generation",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
