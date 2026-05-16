@@ -921,7 +921,224 @@
     },
     {
       "name": "03-Evolution",
-      "item": []
+      "item": [
+        {
+          "name": "GetPokemon_EvolutionChain",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar lista de cadenas de evolución\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.results).to.be.an('array');\r",
+                  "    pm.expect(jsonData.results.length).to.eql(10);\r",
+                  "\r",
+                  "    // ENCADENAMIENTO: La API devuelve una URL completa (ej: \".../evolution-chain/1/\")\r",
+                  "    // Extraemos el ID numérico del final de la URL usando split\r",
+                  "    if (jsonData.results.length > 0) {\r",
+                  "        const urlParts = jsonData.results[0].url.split('/');\r",
+                  "        const chainId = urlParts[urlParts.length - 2]; // Toma el penúltimo elemento (el ID)\r",
+                  "        \r",
+                  "        pm.environment.set(\"evolution_chain_id\", chainId);\r",
+                  "        console.log(\"ID de cadena guardado de forma dinámica: \" + chainId);\r",
+                  "    }\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/evolution-chain?limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "evolution-chain"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetEvolutionChain_ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar estructura anidada de la cadena evolutiva\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    \r",
+                  "    // Verificamos las propiedades base del objeto\r",
+                  "    pm.expect(jsonData).to.have.property('chain');\r",
+                  "    \r",
+                  "    // Validamos la raíz de la evolución (Etapa 1, ej: Bulbasaur)\r",
+                  "    pm.expect(jsonData.chain.species.name).to.be.a('string');\r",
+                  "    pm.expect(jsonData.chain.evolves_to).to.be.an('array');\r",
+                  "    \r",
+                  "    // Validamos que exista una primera evolución (Etapa 2, ej: Ivysaur)\r",
+                  "    if (jsonData.chain.evolves_to.length > 0) {\r",
+                  "        pm.expect(jsonData.chain.evolves_to[0].species.name).to.be.a('string');\r",
+                  "        pm.expect(jsonData.chain.evolves_to[0].evolution_details).to.be.an('array');\r",
+                  "    }\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/evolution-chain/{{evolution_chain_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "evolution-chain",
+                "{{evolution_chain_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetEvolutionChain_InvalidID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found\", () => {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Cuerpo contiene Not Found\", () => {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"Not Found\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/evolution-chain/0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "evolution-chain",
+                "0"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetEvolutionTrigger",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar lista de triggers\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.results).to.be.an('array');\r",
+                  "    pm.expect(jsonData.results.length).to.be.at.least(1);\r",
+                  "    \r",
+                  "    // ENCADENAMIENTO: Guardamos el nombre del primer trigger (usualmente \"level-up\")\r",
+                  "    if (jsonData.results.length > 0) {\r",
+                  "        pm.environment.set(\"evolution_trigger_name\", jsonData.results[0].name);\r",
+                  "    }\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/evolution-trigger",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "evolution-trigger"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetEvolutionTrigger_Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar detalles del trigger level-up\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    \r",
+                  "    // Verificamos que corresponda al ID o nombre esperado\r",
+                  "    pm.expect(jsonData.name).to.eql(\"level-up\");\r",
+                  "    pm.expect(jsonData.pokemon_species).to.be.an('array');\r",
+                  "    \r",
+                  "    // Validamos que el array de especies que lo usan no esté vacío\r",
+                  "    pm.expect(jsonData.pokemon_species.length).to.be.greaterThan(0);\r",
+                  "    pm.expect(jsonData.pokemon_species[0]).to.have.property('name');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/evolution-trigger/{{evolution_trigger_name}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "evolution-trigger",
+                "{{evolution_trigger_name}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     },
     {
       "name": "04- Game/Pokedex",
