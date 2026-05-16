@@ -389,7 +389,535 @@
     },
     {
       "name": "02-Pokemon",
-      "item": []
+      "item": [
+        {
+          "name": "GetPokemon_Limit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar estructura de lista de Pokémon\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.results).to.be.an('array');\r",
+                  "    pm.expect(jsonData.results.length).to.eql(20);\r",
+                  "    \r",
+                  "    // ENCADENAMIENTO: Guardamos el nombre del primer Pokémon (bulbasaur)\r",
+                  "    if(jsonData.results.length > 0) {\r",
+                  "        pm.environment.set(\"pokemon_dinamico\", jsonData.results[0].name);\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Validar Tiempo de Respuesta\r",
+                  "pm.test(\"Response time is less than 500ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+                  "});\r",
+                  "\r",
+                  "// 3. Validar Estructura del JSON (Schema básico)\r",
+                  "pm.test(\"Validar estructura de la respuesta\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.have.property('count');\r",
+                  "    pm.expect(jsonData).to.have.property('results');\r",
+                  "    pm.expect(jsonData.results).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokemon?limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokemon"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetPokemon_name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar tipos y estadísticas de bulbasur\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    \r",
+                  "    // Validar que tenga el tipo \"grass\"\r",
+                  "    const tipos = jsonData.types.map(t => t.type.name);\r",
+                  "    pm.expect(tipos).to.include(\"grass\");\r",
+                  "    \r",
+                  "    // Validar estructura de stats (debe tener base_stat y ser número)\r",
+                  "    pm.expect(jsonData.stats[0].base_stat).to.be.a('number');\r",
+                  "    pm.expect(jsonData.stats[0].stat.name).to.eql(\"hp\");\r",
+                  "\r",
+                  "    // ENCADENAMIENTO: Guardamos su ID (25) para la siguiente prueba\r",
+                  "    pm.environment.set(\"pokemon_id_dinamico\", jsonData.id);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokemon/{{pokemon_dinamico}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokemon",
+                "{{pokemon_dinamico}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetPokemon_id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar tipos y estadísticas de bulbasur\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    \r",
+                  "    // Validar que tenga el tipo \"grass\"\r",
+                  "    const tipos = jsonData.types.map(t => t.type.name);\r",
+                  "    pm.expect(tipos).to.include(\"grass\");\r",
+                  "    \r",
+                  "    // Validar estructura de stats (debe tener base_stat y ser número)\r",
+                  "    pm.expect(jsonData.stats[0].base_stat).to.be.a('number');\r",
+                  "    pm.expect(jsonData.stats[0].stat.name).to.eql(\"hp\");\r",
+                  "\r",
+                  "    // ENCADENAMIENTO: Guardamos su ID (25) para la siguiente prueba\r",
+                  "    pm.environment.set(\"pokemon_id_dinamico\", jsonData.id);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokemon/{{pokemon_id_dinamico}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokemon",
+                "{{pokemon_id_dinamico}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetPokemon_InvalidID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found\", () => {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Cuerpo de respuesta vacío o Not Found\", () => {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"Not Found\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokemon/0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokemon",
+                "0"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get_PokemonOutOfRange",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found\", () => {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Cuerpo de respuesta vacío o Not Found\", () => {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"Not Found\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokemon/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokemon",
+                "999999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetPokemon_InvalidName",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found\", () => {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Cuerpo de respuesta vacío o Not Found\", () => {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"Not Found\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokemon/dontexist",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokemon",
+                "dontexist"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetPokemons_species",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar géneros y variedades\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.gender_rate).to.be.a('number'); // Control de ratio de género\r",
+                  "    pm.expect(jsonData.varieties).to.be.an('array');\r",
+                  "    pm.expect(jsonData.varieties[0].pokemon.name).to.eql(\"pikachu\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokemon-species/25",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokemon-species",
+                "25"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetPokemon_Different",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar formas alternas (Varieties)\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    // Aegislash tiene más de una variedad debido a sus formas\r",
+                  "    pm.expect(jsonData.varieties.length).to.be.greaterThan(1);\r",
+                  "    \r",
+                  "    // Validamos que una de sus formas sea la de escudo (shield)\r",
+                  "    const nombresFormas = jsonData.varieties.map(v => v.pokemon.name);\r",
+                  "    pm.expect(nombresFormas).to.include(\"aegislash-shield\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokemon-species/aegislash",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokemon-species",
+                "aegislash"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetPokemons_Species_limit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar cantidad de especies\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.results.length).to.eql(8);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokemon-species?limit=8",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokemon-species"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "8"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetPokemon_Forms",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar datos de forma\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.form_name).to.be.a('string');\r",
+                  "    pm.expect(jsonData.is_mega).to.be.a('boolean'); // Validamos tipo booleano\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokemon-form/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokemon-form",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetPokemon_Color",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar lista de especies filtradas\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.pokemon_species).to.be.an('array');\r",
+                  "    pm.expect(jsonData.pokemon_species[0]).to.have.property('name');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokemon-color/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokemon-color",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetPokemon_Habitat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar lista de especies filtradas\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.pokemon_species).to.be.an('array');\r",
+                  "    pm.expect(jsonData.pokemon_species[0]).to.have.property('name');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokemon-habitat/3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokemon-habitat",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetPokemon_Encounters",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+                  "\r",
+                  "pm.test(\"Validar encuentros\", () => {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    // Validamos que la respuesta misma sea el arreglo\r",
+                  "    pm.expect(jsonData).to.be.an('array');\r",
+                  "    \r",
+                  "    if(jsonData.length > 0) {\r",
+                  "        pm.expect(jsonData[0].location_area).to.have.property('name');\r",
+                  "        pm.expect(jsonData[0].version_details).to.be.an('array');\r",
+                  "    }\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pokemon/{{pokemon_id_dinamico}}/encounters",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pokemon",
+                "{{pokemon_id_dinamico}}",
+                "encounters"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     },
     {
       "name": "03-Evolution",
